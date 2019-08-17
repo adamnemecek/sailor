@@ -1,5 +1,6 @@
 mod helpers;
-mod painter;
+// mod painter;
+mod pathfinder_painter;
 mod ui;
 pub mod vertex;
 pub mod drawable_tile;
@@ -8,4 +9,5 @@ pub mod mesh;
 pub mod feature;
 pub mod feature_collection;
 
-pub use painter::Painter;
+// pub use painter::Painter;
+pub use pathfinder_painter::PathfinderPainter;

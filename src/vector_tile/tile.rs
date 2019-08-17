@@ -1,3 +1,5 @@
+use pathfinder_renderer::concurrent::rayon::RayonExecutor;
+use pathfinder_geometry::vector::Vector2I;
 use crate::drawing::feature_collection::FeatureCollection;
 use crate::drawing::feature::Feature;
 use std::sync::{
@@ -19,12 +21,16 @@ use crate::drawing::vertex::{
     LayerVertexCtor,
 };
 
-#[derive(Debug, Clone)]
+
+use pathfinder_renderer::scene::{PathObject, Scene};
+use pathfinder_canvas::{CanvasFontContext, CanvasRenderingContext2D, Path2D};
+
 pub struct Tile {
     pub tile_id: TileId,
     pub layers: Vec<crate::vector_tile::transform::Layer>,
     pub mesh: VertexBuffers<Vertex, u32>,
     pub extent: u16,
+    pub scene: Scene,
 }
 
 pub fn layer_num(name: &str) -> u32 {
@@ -50,7 +56,12 @@ pub fn layer_num(name: &str) -> u32 {
 }
 
 impl Tile {
-    pub fn from_mbvt(tile_id: &math::TileId, data: &Vec<u8>, feature_collection: Arc<RwLock<FeatureCollection>>) -> Self {
+    pub fn from_mbvt(
+        tile_id: &math::TileId,
+        data: &Vec<u8>,
+        feature_collection: Arc<RwLock<FeatureCollection>>,
+        window_size: Vector2I,
+    ) -> Self {
         // let t = std::time::Instant::now();
 
         // we can build a bytes reader directly out of the bytes
@@ -63,6 +74,9 @@ impl Tile {
         let mut mesh: VertexBuffers<Vertex, u32> = VertexBuffers::with_capacity(100_000, 100_000);
         let mut builder = MeshBuilder::new(&mut mesh, LayerVertexCtor::new(tile_id, 1.0));
         let extent = tile.layers[0].extent as u16;
+
+        let mut canvas = CanvasRenderingContext2D::new(CanvasFontContext::from_system_source(),
+                                                    window_size.to_f32());
 
         for layer in tile.layers {
             let mut index_start_before = builder.get_current_index();
@@ -119,7 +133,8 @@ impl Tile {
                         feature.0,
                         &feature.1,
                         layer.extent as f32,
-                        tile_id.z
+                        tile_id.z,
+                        &mut canvas,
                     );
                 }
 
@@ -140,6 +155,7 @@ impl Tile {
             layers,
             mesh,
             extent,
+            scene: canvas.into_scene(),
         }
     }
 }

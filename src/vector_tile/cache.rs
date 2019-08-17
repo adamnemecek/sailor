@@ -16,6 +16,7 @@ use std::sync::mpsc::{
     Sender,
     Receiver,
 };
+use pathfinder_geometry::vector::{Vector2F, Vector2I};
 
 pub struct TileCache {
     cache: HashMap<math::TileId, Tile>,
@@ -74,7 +75,7 @@ impl TileCache {
                 id,
                 spawn(move|| {
                     if let Some(data) = crate::vector_tile::fetch_tile_data(&tile_id_clone) {
-                        let tile = Tile::from_mbvt(&tile_id_clone, &data, feature_collection);
+                        let tile = Tile::from_mbvt(&tile_id_clone, &data, feature_collection, Vector2I::new(640, 480));
                         match tx.send(id) {
                             Err(_) => log::debug!("Could not send the tile load message. This most likely happened because the app was terminated."),
                             _ => (),

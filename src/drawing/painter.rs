@@ -664,7 +664,6 @@ impl Painter {
                 if let Some(tile) = tile_cache.try_get_tile(&tile_id) {
 
                     let drawable_tile = DrawableTile::load_from_tile_id(
-                        &self.device,
                         tile_id,
                         &tile,
                     );

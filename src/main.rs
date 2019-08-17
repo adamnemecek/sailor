@@ -33,7 +33,7 @@ fn main() {
 
     let mut app_state = app_state::AppState::new("config/style.css", zurich.clone(), size, size, z, hdpi_factor);
 
-    let mut painter = drawing::Painter::init(&events_loop, size, size, &app_state);
+    let mut painter = drawing::PathfinderPainter::new();
 
     let mut status = true;
     let mut mouse_down = false;
@@ -49,10 +49,10 @@ fn main() {
                     event: WindowEvent::Resized(size),
                     ..
                 } => {
-                    let physical = size.to_physical(painter.get_hidpi_factor());
-                    app_state.screen.width = physical.width.round() as u32;
-                    app_state.screen.height = physical.height.round() as u32;
-                    painter.resize(physical.width.round() as u32, physical.height.round() as u32);
+                    // let physical = size.to_physical(painter.get_hidpi_factor());
+                    // app_state.screen.width = physical.width.round() as u32;
+                    // app_state.screen.height = physical.height.round() as u32;
+                    // painter.resize(physical.width.round() as u32, physical.height.round() as u32);
                 },
                 Event::WindowEvent { event, .. } => match event {
                     WindowEvent::Destroyed => { status = false }
@@ -91,8 +91,8 @@ fn main() {
             }
         });
 
-        painter.update_shader();
-        painter.update_styles(app_state.zoom.max(14.0), &mut app_state.css_cache);
+        // painter.update_shader();
+        // painter.update_styles(app_state.zoom.max(14.0), &mut app_state.css_cache);
         painter.paint(&mut app_state);
 
         stats.capture_frame();
